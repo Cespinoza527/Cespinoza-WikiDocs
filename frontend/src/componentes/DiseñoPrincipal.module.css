@@ -1,0 +1,48 @@
+.layoutContenedor {
+  display: flex;
+  min-height: 100vh; 
+}
+
+.menuLateral {
+  width: 240px;
+  background-color: #f8f9fa; 
+  border-right: 1px solid #e9ecef;
+  padding: 1.5rem;
+  color: #333;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  color: #1d3557;
+}
+
+.menuLateral ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menuLateral li {
+  margin-bottom: 1rem;
+}
+
+.menuLateral a {
+  text-decoration: none;
+  color: #495057;
+  font-size: 1rem;
+  display: block;
+  padding: 0.5rem;
+  border-radius: 6px;
+}
+
+.menuLateral a:hover {
+  background-color: #e9ecef;
+}
+
+.contenidoPrincipal {
+  flex: 1; 
+  padding: 2rem;
+  background-color: #ffffff;
+}

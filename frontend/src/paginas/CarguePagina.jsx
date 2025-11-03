@@ -1,0 +1,127 @@
+
+import React, { useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
+import estilos from './CarguePagina.module.css'; // Crearemos este archivo
+
+const CarguePagina = () => {
+  const [modulos, setModulos] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState('');
+  
+  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+
+  // lista de módulos  
+  const obtenerModulos = useCallback(async () => {
+    try {
+      const config = {
+        headers: { Authorization: `Bearer ${userInfo.token}` },
+      };
+      const { data } = await axios.get('http://localhost:3001/api/modulos', config);
+      setModulos(data);
+      setCargando(false);
+    } catch (err) {
+      console.error(err);
+      setError('No se pudieron cargar los módulos');
+      setCargando(false);
+    }
+  }, [userInfo]);
+
+  useEffect(() => {
+    if (userInfo) {
+      obtenerModulos();
+    }
+  }, [userInfo, obtenerModulos]);
+
+  // Estados para el formulario
+  const [titulo, setTitulo] = useState('');
+  const [moduloId, setModuloId] = useState('');
+  const [archivo, setArchivo] = useState(null);
+  const [mensajeExito, setMensajeExito] = useState('');
+  const [errorCargue, setErrorCargue] = useState('');
+
+  const manejarSubida = async (e) => {
+    e.preventDefault();
+    setErrorCargue('');
+    setMensajeExito('');
+
+    if (!titulo || !moduloId || !archivo) {
+      setErrorCargue('Por favor, completa todos los campos y selecciona un archivo.');
+      return;
+    }
+
+    // FormData para enviar archivos
+    const formData = new FormData();
+    formData.append('titulo', titulo);
+    formData.append('moduloId', moduloId);
+    formData.append('documento', archivo); 
+
+    try {
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      //Llamdo al endpoint
+      await axios.post('http://localhost:3001/api/documentos/subir', formData, config);
+      
+      setMensajeExito('¡Archivo subido exitosamente!');
+      setTitulo('');
+      setModuloId('');
+      setArchivo(null);
+    
+    } catch (err) {
+      console.error(err);
+      setErrorCargue('Error al subir el archivo. Intenta de nuevo.');
+    }
+  };
+
+  if (cargando) return <p>Cargando...</p>;
+  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+
+  return (
+    <div className={estilos.contenedorCargue}>
+      <h1>Cargar Documentación</h1>
+      
+      <form onSubmit={manejarSubida} className={estilos.formulario}>
+        
+        {mensajeExito && <p className={estilos.mensajeExito}>{mensajeExito}</p>}
+        {errorCargue && <p className={estilos.mensajeError}>{errorCargue}</p>}
+
+        <div className={estilos.formGroup}>
+          <label>Título del Documento</label>
+          <input
+            type="text"
+            value={titulo}
+            onChange={(e) => setTitulo(e.target.value)}
+          />
+        </div>
+
+        <div className={estilos.formGroup}>
+          <label>Módulo al que pertenece</label>
+          <select value={moduloId} onChange={(e) => setModuloId(e.target.value)}>
+            <option value="">-- Selecciona un módulo --</option>
+            {modulos.map((modulo) => (
+              <option key={modulo._id} value={modulo._id}>
+                {modulo.nombre}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={estilos.formGroup}>
+          <label>Archivo</label>
+          <input
+            type="file"
+            onChange={(e) => setArchivo(e.target.files[0])}
+          />
+        </div>
+
+        <button type="submit" className={estilos.botonCargar}>Cargar Documento</button>
+      </form>
+    </div>
+  );
+};
+
+export default CarguePagina;

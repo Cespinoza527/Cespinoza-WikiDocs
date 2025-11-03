@@ -1,0 +1,191 @@
+.contenedorPrincipal {
+  padding: 2rem;
+  font-family: sans-serif;
+  color: #333;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+}
+
+.header button {
+  background-color: #e63946;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.cuadriculaModulos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+  gap: 1.5rem;
+}
+
+.tarjetaModuloContenedor {
+  position: relative;
+  background-color: #f1faee;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+}
+
+.tarjetaModulo:hover {
+  transform: translateY(-5px); 
+}
+
+.tarjetaModulo h3 {
+  margin-top: 0;
+  color: #1d3557;
+}
+
+.enlaceTarjeta {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  padding: 1.5rem;
+}
+
+.enlaceTarjeta:hover {
+  transform: none; 
+}
+
+.enlaceTarjeta h3 {
+  margin-top: 0;
+  color: #1d3557;
+}
+
+.header div {
+  display: flex;
+  gap: 1rem;
+}
+
+.botonCrear {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.botonCrear:hover {
+  background-color: #0056b3;
+}
+
+.botonLogout {
+  background-color: #e63946;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.formGroup input,
+.formGroup textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box; 
+}
+
+.botonGuardar {
+  background-color: #2a9d8f;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.botonMenu {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #888;
+  cursor: pointer;
+  padding: 0.5rem;
+  line-height: 1;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  z-index: 5; 
+}
+
+.botonMenu:hover {
+  background-color: rgba(0,0,0,0.1);
+}
+
+/*Ventana de eliminacion*/
+.contenedorEliminar p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.botonesEliminar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.botonCancelar {
+  background-color: #6c757d; 
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.botonConfirmarEliminar {
+  background-color: #e63946; 
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.botonCancelar:disabled,
+.botonConfirmarEliminar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

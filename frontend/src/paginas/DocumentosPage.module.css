@@ -1,0 +1,58 @@
+
+
+.headerModulo {
+  margin-bottom: 2rem;
+}
+
+.headerModulo h2 {
+  font-size: 2rem;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: #1d3557;
+}
+
+.headerModulo p {
+  font-size: 1.1rem;
+  color: #6c757d;
+}
+
+.listaDocumentos {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; 
+}
+
+.itemDocumento {
+  display: flex;
+  align-items: center;
+  background-color: #f8f9fa; 
+  padding: 1.25rem;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.2s;
+}
+
+.itemDocumento:hover {
+  background-color: #e9ecef; 
+}
+
+.iconoArchivo {
+  font-size: 1.5rem;
+  margin-right: 1.5rem;
+  color: #495057;
+}
+
+.infoDocumento h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #343a40;
+}
+
+.infoDocumento p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
