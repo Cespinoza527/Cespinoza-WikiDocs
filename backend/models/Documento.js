@@ -17,7 +17,7 @@ const documentoSchema = new mongoose.Schema({
   },
   rutaArchivo: { 
     type: String,
-    required: true
+    //required: false
   },
   tipoArchivo: { 
     type: String,

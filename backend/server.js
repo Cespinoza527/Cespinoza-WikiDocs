@@ -1,5 +1,6 @@
 
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config();
@@ -10,9 +11,12 @@ const PORT = process.env.PORT || 3001;
 const userRoutes = require('./routes/userRoutes');
 const moduloRoutes = require('./routes/moduloRoutes.js');
 const documentoRoutes = require('./routes/documentoRoutes.js');
+const versionRoutes = require('./routes/versionRoutes.js');
 
 app.use(cors());
 app.use(express.json());
+
+app.use('/archivos', express.static(path.join(__dirname, '/archivos')));
 
 app.get('/api', (req, res) => {
   res.json({ message: 'Backend ejecutado' });
@@ -21,6 +25,7 @@ app.get('/api', (req, res) => {
 app.use('/api/users', userRoutes);
 app.use('/api/modulos', moduloRoutes);
 app.use('/api/documentos', documentoRoutes);
+app.use('/api/versiones', versionRoutes);
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
@@ -30,5 +35,5 @@ mongoose.connect(process.env.MONGO_URI)
     });
   })
   .catch((error) => {
-    console.error('Error no se pudo conectar al Mongo:', error.message);
+    console.error('Error no se pudo conectar a BD:', error.message);
   });

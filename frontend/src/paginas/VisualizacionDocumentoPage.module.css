@@ -1,0 +1,151 @@
+/* frontend/src/paginas/VisualizacionDocumentoPage.module.css */
+
+.contenedorPagina {
+  display: flex;
+  height: 100vh; 
+  /*font-family: sans-serif;*/
+}
+
+
+.columnaIzquierda {
+  width: 320px; 
+  background-color: #f8f9fa;
+  border-right: 1px solid #e9ecef;
+  display: flex;
+  flex-direction: column; 
+  height: 100vh; 
+}
+
+
+.menuLateral {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  color: #1d3557;
+}
+
+.menuLateral ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menuLateral li {
+  margin-bottom: 1rem;
+}
+
+.menuLateral a {
+  text-decoration: none;
+  color: #495057;
+  font-size: 1rem;
+  display: block;
+  padding: 0.5rem;
+  border-radius: 6px;
+}
+
+.menuLateral a:hover {
+  background-color: #e9ecef;
+}
+
+
+.columnaChat {
+  flex: 1; 
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  overflow-y: auto; 
+}
+
+.areaChat {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.mensajeChat {
+  background-color: #fff;
+  border: 1px solid #eee;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.areaInput textarea {
+  width: 100%;
+  height: 80px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 0.5rem;
+  box-sizing: border-box;
+  margin-bottom: 0.5rem;
+}
+
+.areaInput button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.columnaVisor {
+  flex: 1; 
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.headerVisor {
+  padding: 1.5rem;
+  border-bottom: 1px solid #ddd;
+  background-color: #fff;
+}
+
+.headerVisor h2 {
+  margin: 0;
+}
+
+.areaContenido {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  background-color: #f4f4f4;
+}
+
+.areaContenido p {
+  background-color: #fff;
+  padding: 2rem;
+}
+
+
+.editorTxt {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 1rem;
+  font-family: monospace; 
+  font-size: 1rem;
+  box-sizing: border-box;
+  resize: none; 
+}
+
+
+.mensajeUsuario {
+  background-color: #d1e7dd; 
+  border: 1px solid #c3e6cb;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  margin-left: auto;
+  width: 80%;
+}

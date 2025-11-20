@@ -6,6 +6,7 @@ import ModulosPage from './paginas/ModulosPage';
 import DocumentosPage from './paginas/DocumentosPage';
 import DiseñoPrincipal from './componentes/DiseñoPrincipal';
 import CarguePagina from './paginas/CarguePagina';
+import VisualizacionDocumentoPage from './paginas/VisualizacionDocumentoPage';
 
 const RutaProtegida = ({ children }) => {
   const userInfo = localStorage.getItem('userInfo');
@@ -16,10 +17,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        {}
         <Route path="/login" element={<LoginPage />} />
-
-        {}
         <Route
           path="/"
           element={
@@ -28,15 +26,21 @@ function App() {
             </RutaProtegida>
           }
         >
-          {}
-          <Route index element={<Navigate to="modulos" />} /> {}
+          <Route index element={<Navigate to="modulos" />} /> 
           <Route path="modulos" element={<ModulosPage />} />
           <Route path="modulos/:moduloId" element={<DocumentosPage />} />
           <Route path="cargue" element={<CarguePagina />} />
           <Route path="configuracion" element={<div>Página de Configuración</div>} />
         </Route>
 
-        {}
+        <Route
+          path="/documentos/:documentoId"
+          element={
+            <RutaProtegida>
+              <VisualizacionDocumentoPage />
+            </RutaProtegida>
+          }
+        />       
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>

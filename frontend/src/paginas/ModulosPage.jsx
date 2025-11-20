@@ -27,6 +27,7 @@ const ModulosPage = () => {
   const [moduloAEliminar, setModuloAEliminar] = useState(null);
   const [errorEliminar, setErrorEliminar] = useState('');
   const [cargandoEliminar, setCargandoEliminar] = useState(false);
+  const [terminoBusqueda, setTerminoBusqueda] = useState('');
 
   const obtenerModulos = useCallback(async () => {
     try {
@@ -129,7 +130,7 @@ const manejarGuardarEdicion = async (e) => {
   };
 
   const confirmarEliminar = async () => {
-    setCargandoEliminar(true); // Mensaje de carga
+    setCargandoEliminar(true); 
     setErrorEliminar('');
 
     try {
@@ -139,14 +140,14 @@ const manejarGuardarEdicion = async (e) => {
 
       await axios.delete(`http://localhost:3001/api/modulos/${moduloAEliminar._id}`, config);
 
-      setModalEliminarAbierto(false); // Cerrar modal
+      setModalEliminarAbierto(false); 
       setModuloAEliminar(null);
       setCargandoEliminar(false);
-      obtenerModulos();             // Refresca la lista de módulos
+      obtenerModulos();           
     
     } catch (err) {
       console.error(err);
-      // ¡Aquí mostramos el error personalizado de tu backend!
+
       setErrorEliminar(err.response.data.message || 'Error al eliminar el módulo');
       setCargandoEliminar(false);
     }
@@ -156,6 +157,11 @@ const manejarGuardarEdicion = async (e) => {
     setMenuAbiertoId(menuAbiertoId === moduloId ? null : moduloId);
   };
 
+  const modulosFiltrados = modulos.filter((modulo) =>
+    modulo.nombre.toLowerCase().includes(terminoBusqueda.toLowerCase()) ||
+    modulo.descripcion.toLowerCase().includes(terminoBusqueda.toLowerCase())
+  );
+
   if (cargando) return <p>Cargando módulos</p>;
   if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
@@ -164,35 +170,55 @@ const manejarGuardarEdicion = async (e) => {
       <header className={estilos.header}>
         <h1>Módulos de Documentación</h1>
         <div>
-          {}
+			
           <button onClick={() => setModalAbierto(true)} className={estilos.botonCrear}>
             + Añadir Módulo
           </button>
           <button onClick={manejarLogout} className={estilos.botonLogout}>Cerrar Sesión</button>
         </div>
       </header>
-      <div className={estilos.cuadriculaModulos}>
-        {modulos.map((modulo) => (
-          <div key={modulo._id} className={estilos.tarjetaModuloContenedor}>
-            
-            <button onClick={() => toggleMenu(modulo._id)} className={estilos.botonMenu}>
-              ⋮
-            </button>
-            
-            {menuAbiertoId === modulo._id && (
-              <MenuOpciones 
-                onEditar={() => abrirModalEditar(modulo)}
-                onEliminar={() => manejarEliminar(modulo)}
-              />
-            )}
-            
-            <Link to={`/modulos/${modulo._id}`} className={estilos.enlaceTarjeta}>
-              <h3>{modulo.nombre}</h3>
-              <p>{modulo.descripcion}</p>
-            </Link>
-          </div>
-        ))}
+  
+      <div className={estilos.contenedorBusqueda}>
+        <input
+          type="text"
+          placeholder="Buscar módulos por nombre o descripción..."
+          className={estilos.barraBusqueda}
+          value={terminoBusqueda}
+          onChange={(e) => setTerminoBusqueda(e.target.value)}
+        />
       </div>
+
+      <div className={estilos.cuadriculaModulos}>
+        {modulosFiltrados.length === 0 ? (
+          <p>
+            {terminoBusqueda ? 'No se encontraron módulos que coincidan.' : 'No hay módulos creados todavía.'}
+          </p>
+        ) : (
+          modulosFiltrados.map((modulo) => (
+            <div key={modulo._id} className={estilos.tarjetaModuloContenedor}>
+			
+              <button onClick={() => toggleMenu(modulo._id)} className={estilos.botonMenu}>
+                ⋮
+              </button>
+              
+              {menuAbiertoId === modulo._id && (
+                <MenuOpciones 
+                  onEditar={() => abrirModalEditar(modulo)}
+                  onEliminar={() => manejarEliminar(modulo)}
+                />
+              )}
+              
+              <Link to={`/modulos/${modulo._id}`} className={estilos.enlaceTarjeta}>
+                <h3>{modulo.nombre}</h3>
+                <p>{modulo.descripcion}</p>
+              </Link>
+            </div>
+          ))
+        )}
+      </div>
+
+
+
 
       <Modal mostrar={modalAbierto} onClose={() => setModalAbierto(false)} titulo="Crear Nuevo Módulo">
         <form onSubmit={manejarCrearModulo}>
