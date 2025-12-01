@@ -1,0 +1,43 @@
+:root {
+    --fondo-principal: #f0f2f5;
+    --fondo-barra-lateral: #ffffff;
+    --fondo-contenido: #f0f2f5;
+    --fondo-tarjeta: #ffffff;
+    --texto-principal: #1c1e21;
+    --texto-secundario: #606770;
+    --color-borde: #dddfe2;
+    --color-acento: #1877f2;
+    --chat-ia-fondo: #ffffff;
+    --chat-usuario-fondo: #e7f3ff;
+    --chat-usuario-borde: #cce4ff;
+    --input-fondo: #f0f2f5;
+    --input-borde: #ccd0d5;
+    --fondo-hover: #f2f2f2;
+    --sombra: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+body.modoOscuro {
+    --fondo-principal: #0f172a;
+    --fondo-barra-lateral: #0b1020;
+    --fondo-contenido: #0f172a;
+    --fondo-tarjeta: #1e293b;
+    --texto-principal: #e7edf8;
+    --texto-secundario: #9fb3d9;
+    --color-borde: rgba(255, 255, 255, 0.08);
+    --color-acento: #5b8def;
+    --chat-ia-fondo: rgba(255, 255, 255, 0.05);
+    --chat-usuario-fondo: rgba(91, 141, 239, 0.2);
+    --chat-usuario-borde: rgba(91, 141, 239, 0.3);
+    --input-fondo: rgba(255, 255, 255, 0.05);
+    --input-borde: rgba(255, 255, 255, 0.1);
+    --fondo-hover: rgba(255, 255, 255, 0.1);
+    --sombra: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--fondo-principal);
+    color: var(--texto-principal);
+    transition: background-color 0.3s, color 0.3s;
+}

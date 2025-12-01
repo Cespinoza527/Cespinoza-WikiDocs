@@ -9,14 +9,22 @@ const versionSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: 'User' 
+    ref: 'User'
   },
   contenido: {
+    type: String,
+    required: false
+  },
+  rutaArchivo: {
+    type: String,
+    required: false
+  },
+  comentario: {
     type: String,
     required: true
   }
 }, {
-  timestamps: true 
+  timestamps: true
 });
 
 const Version = mongoose.model('Version', versionSchema);

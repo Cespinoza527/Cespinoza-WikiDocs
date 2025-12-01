@@ -2,31 +2,32 @@
 
 .contenedorPagina {
   display: flex;
-  height: 100vh; 
-  /*font-family: sans-serif;*/
+  height: 100vh;
+  background-color: var(--fondo-principal);
+  color: var(--texto-principal);
+  transition: background-color 0.3s, color 0.3s;
 }
-
 
 .columnaIzquierda {
-  width: 320px; 
-  background-color: #f8f9fa;
-  border-right: 1px solid #e9ecef;
+  width: 320px;
+  background-color: var(--fondo-barra-lateral);
+  border-right: 1px solid var(--color-borde);
   display: flex;
-  flex-direction: column; 
-  height: 100vh; 
+  flex-direction: column;
+  height: 100vh;
+  transition: background-color 0.3s, border-color 0.3s;
 }
-
 
 .menuLateral {
   padding: 1.5rem;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid var(--color-borde);
 }
 
 .logo {
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 2rem;
-  color: #1d3557;
+  color: var(--texto-principal);
 }
 
 .menuLateral ul {
@@ -39,26 +40,35 @@
   margin-bottom: 1rem;
 }
 
-.menuLateral a {
+.menuLateral a,
+.botonModo {
   text-decoration: none;
-  color: #495057;
+  color: var(--texto-secundario);
   font-size: 1rem;
   display: block;
   padding: 0.5rem;
   border-radius: 6px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  transition: background-color 0.2s, color 0.2s;
 }
 
-.menuLateral a:hover {
-  background-color: #e9ecef;
+.menuLateral a:hover,
+.botonModo:hover {
+  background-color: var(--fondo-hover);
+  color: var(--texto-principal);
 }
-
 
 .columnaChat {
-  flex: 1; 
+  flex: 1;
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  overflow-y: auto; 
+  overflow-y: auto;
 }
 
 .areaChat {
@@ -67,85 +77,110 @@
 }
 
 .mensajeChat {
-  background-color: #fff;
-  border: 1px solid #eee;
+  background-color: var(--chat-ia-fondo);
+  border: 1px solid var(--color-borde);
   padding: 0.5rem 1rem;
   border-radius: 8px;
   margin-bottom: 1rem;
   font-size: 0.9rem;
+  color: var(--texto-principal);
 }
-
-.areaInput textarea {
-  width: 100%;
-  height: 80px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 0.5rem;
-  box-sizing: border-box;
-  margin-bottom: 0.5rem;
-}
-
-.areaInput button {
-  width: 100%;
-  padding: 0.75rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-.columnaVisor {
-  flex: 1; 
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
-
-.headerVisor {
-  padding: 1.5rem;
-  border-bottom: 1px solid #ddd;
-  background-color: #fff;
-}
-
-.headerVisor h2 {
-  margin: 0;
-}
-
-.areaContenido {
-  flex: 1;
-  padding: 1rem;
-  overflow-y: auto;
-  background-color: #f4f4f4;
-}
-
-.areaContenido p {
-  background-color: #fff;
-  padding: 2rem;
-}
-
-
-.editorTxt {
-  width: 100%;
-  height: 100%;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 1rem;
-  font-family: monospace; 
-  font-size: 1rem;
-  box-sizing: border-box;
-  resize: none; 
-}
-
 
 .mensajeUsuario {
-  background-color: #d1e7dd; 
-  border: 1px solid #c3e6cb;
+  background-color: var(--chat-usuario-fondo);
+  border: 1px solid var(--chat-usuario-borde);
   padding: 0.5rem 1rem;
   border-radius: 8px;
   margin-bottom: 1rem;
   font-size: 0.9rem;
   margin-left: auto;
   width: 80%;
+  color: var(--texto-principal);
+}
+
+.areaInput textarea {
+  width: 100%;
+  height: 80px;
+  background-color: var(--input-fondo);
+  border: 1px solid var(--input-borde);
+  border-radius: 6px;
+  padding: 0.5rem;
+  box-sizing: border-box;
+  margin-bottom: 0.5rem;
+  color: var(--texto-principal);
+}
+
+.areaInput textarea:focus {
+  outline: none;
+  border-color: var(--color-acento);
+}
+
+.areaInput button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--color-acento);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.areaInput button:hover {
+  opacity: 0.9;
+}
+
+.columnaVisor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: var(--fondo-contenido);
+}
+
+.headerVisor {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--color-borde);
+  background-color: var(--fondo-barra-lateral);
+  color: var(--texto-principal);
+}
+
+.headerVisor a {
+  color: var(--color-acento);
+  text-decoration: none;
+}
+
+.headerVisor h2 {
+  margin: 0;
+  color: var(--texto-principal);
+}
+
+.areaContenido {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  background-color: var(--fondo-contenido);
+}
+
+.areaContenido p {
+  background-color: var(--fondo-tarjeta);
+  padding: 2rem;
+  border-radius: 8px;
+  color: var(--texto-principal);
+  border: 1px solid var(--color-borde);
+}
+
+.editorTxt {
+  width: 100%;
+  height: 100%;
+  background-color: var(--fondo-tarjeta);
+  color: var(--texto-principal);
+  border: 1px solid var(--color-borde);
+  border-radius: 6px;
+  padding: 1rem;
+  font-family: monospace;
+  font-size: 1rem;
+  box-sizing: border-box;
+  resize: none;
 }

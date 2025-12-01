@@ -1,13 +1,14 @@
-
 .contenedorCargue {
   max-width: 800px;
+  margin: 0 auto;
 }
 
 .formulario {
-  background-color: #fff;
+  background-color: var(--fondo-tarjeta);
   padding: 2rem;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: var(--sombra);
+  border: 1px solid var(--color-borde);
 }
 
 .formGroup {
@@ -18,6 +19,7 @@
   display: block;
   margin-bottom: 0.5rem;
   font-weight: bold;
+  color: var(--texto-principal);
 }
 
 .formGroup input[type="text"],
@@ -25,14 +27,23 @@
 .formGroup input[type="file"] {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ccc;
+  border: 1px solid var(--input-borde);
   border-radius: 6px;
   font-size: 1rem;
   box-sizing: border-box;
+  background-color: var(--input-fondo);
+  color: var(--texto-principal);
+}
+
+.formGroup input[type="text"]:focus,
+.formGroup select:focus,
+.formGroup input[type="file"]:focus {
+  outline: none;
+  border-color: var(--color-acento);
 }
 
 .botonCargar {
-  background-color: #2a9d8f;
+  background-color: var(--color-acento);
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -45,15 +56,17 @@
 .mensajeExito {
   color: #2a9d8f;
   font-weight: bold;
-  background-color: #f0fdfa;
+  background-color: rgba(42, 157, 143, 0.1);
   padding: 1rem;
   border-radius: 6px;
+  border: 1px solid rgba(42, 157, 143, 0.2);
 }
 
 .mensajeError {
   color: #e63946;
   font-weight: bold;
-  background-color: #fff5f5;
+  background-color: rgba(230, 57, 70, 0.1);
   padding: 1rem;
   border-radius: 6px;
+  border: 1px solid rgba(230, 57, 70, 0.2);
 }

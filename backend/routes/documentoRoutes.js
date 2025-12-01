@@ -6,13 +6,24 @@ const router = express.Router();
 const { proteger } = require('../middleware/authMiddleware.js');
 const Documento = require('../models/Documento.js');
 const Version = require('../models/Version.js');
+const Auditoria = require('../models/Auditoria.js');
 const pdfParse = require('pdf-parse');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+
+const s3Client = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    sessionToken: process.env.AWS_SESSION_TOKEN,
+  },
+});
 
 const almacenamiento = multer.diskStorage({
   destination(req, file, cb) {
-    cb(null, 'archivos/'); 
+    cb(null, 'archivos/');
   },
   filename(req, file, cb) {
     cb(null, `documento-${Date.now()}${path.extname(file.originalname)}`);
@@ -32,7 +43,7 @@ router.post('/subir', proteger, subida.single('documento'), async (req, res) => 
         titulo,
         user: req.user._id,
         modulo: moduloId,
-        rutaArchivo: null, 
+        rutaArchivo: null,
         tipoArchivo: tipoArchivo
       });
       const documentoGuardado = await nuevoDocumento.save();
@@ -40,7 +51,8 @@ router.post('/subir', proteger, subida.single('documento'), async (req, res) => 
       const nuevaVersion = new Version({
         documento: documentoGuardado._id,
         contenido: contenidoTexto,
-        user: req.user._id
+        user: req.user._id,
+        comentario: 'Versión inicial'
       });
       await nuevaVersion.save();
 
@@ -49,16 +61,41 @@ router.post('/subir', proteger, subida.single('documento'), async (req, res) => 
       res.status(201).json(documentoGuardado);
 
     } else {
-
+      const fileContent = fs.readFileSync(rutaTemporal);
+      const nombreArchivoS3 = `documentos/${Date.now()}-${path.basename(req.file.originalname)}`;
+      const uploadParams = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: nombreArchivoS3,
+        Body: fileContent,
+        ContentType: tipoArchivo,
+      };
+      await s3Client.send(new PutObjectCommand(uploadParams));
+      const urlPublica = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${nombreArchivoS3}`;
       const nuevoDocumento = new Documento({
         titulo,
         user: req.user._id,
         modulo: moduloId,
-        rutaArchivo: rutaTemporal, 
+        rutaArchivo: urlPublica,
         tipoArchivo: tipoArchivo
       });
-      
+
       const documentoGuardado = await nuevoDocumento.save();
+
+      // Crear versión inicial para archivos no texto
+      const nuevaVersion = new Version({
+        documento: documentoGuardado._id,
+        rutaArchivo: urlPublica,
+        user: req.user._id,
+        comentario: 'Versión inicial'
+      });
+      await nuevaVersion.save();
+
+      try {
+        fs.unlinkSync(rutaTemporal);
+      } catch (err) {
+        console.error("No se pudo borrar el archivo temporal:", err);
+      }
+
       res.status(201).json(documentoGuardado);
     }
 
@@ -79,6 +116,35 @@ router.get('/por-modulo/:moduloId', proteger, async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ message: 'Error en el servidor', error: error.message });
+  }
+});
+
+router.delete('/:id', proteger, async (req, res) => {
+  try {
+    const documento = await Documento.findById(req.params.id);
+
+    if (!documento) {
+      return res.status(404).json({ message: 'Documento no encontrado' });
+    }
+
+    // Eliminar versiones asociadas
+    await Version.deleteMany({ documento: documento._id });
+
+    // Crear registro de auditoría
+    const auditoria = new Auditoria({
+      accion: 'ELIMINAR_DOCUMENTO',
+      usuario: req.user._id,
+      detalles: `Documento eliminado: ${documento.titulo} (ID: ${documento._id})`
+    });
+    await auditoria.save();
+
+    // Eliminar el documento
+    await Documento.findByIdAndDelete(req.params.id);
+
+    res.json({ message: 'Documento eliminado correctamente' });
+  } catch (error) {
+    console.error('Error al eliminar documento:', error);
+    res.status(500).json({ message: 'Error al eliminar el documento' });
   }
 });
 
@@ -112,16 +178,24 @@ router.post('/:id/ask', proteger, async (req, res) => {
     let contenidoTexto = '';
 
     if (documento.tipoArchivo === 'application/pdf') {
+      if (documento.rutaArchivo.startsWith('http')) {
+        const respuestaS3 = await fetch(documento.rutaArchivo);
+        const arrayBuffer = await respuestaS3.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const data = await pdfParse(buffer);
+        contenidoTexto = data.text;
 
-      const rutaCompleta = path.join(__dirname, '..', documento.rutaArchivo);
-      const dataBuffer = fs.readFileSync(rutaCompleta);
-      const data = await pdfParse(dataBuffer);
-      contenidoTexto = data.text;
+      } else {
+        const rutaCompleta = path.join(__dirname, '..', documento.rutaArchivo);
+        const dataBuffer = fs.readFileSync(rutaCompleta);
+        const data = await pdfParse(dataBuffer);
+        contenidoTexto = data.text;
+      }
 
     } else if (documento.tipoArchivo === 'text/plain') {
 
-      const ultimaVersion = await Version.findOne({ 
-        documento: documento._id 
+      const ultimaVersion = await Version.findOne({
+        documento: documento._id
       }).sort({ createdAt: -1 });
 
       if (!ultimaVersion) {
@@ -158,4 +232,3 @@ router.post('/:id/ask', proteger, async (req, res) => {
 });
 
 module.exports = router;
-

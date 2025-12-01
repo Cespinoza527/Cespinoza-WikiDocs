@@ -1,7 +1,3 @@
-// frontend/src/paginas/VisualizacionDocumentoPage.jsx
-// --- VERSIÓN COMPLETA Y CORREGIDA (CON useMemo y useCallback) ---
-
-// 1. Importamos las herramientas 'useCallback' y 'useMemo'
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -9,10 +5,10 @@ import estilos from './VisualizacionDocumentoPage.module.css';
 
 const VisualizacionDocumentoPage = () => {
   const { documentoId } = useParams();
-  const [documento, setDocumento] = useState(null); 
+  const [documento, setDocumento] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
-  
+
   const [contenidoTexto, setContenidoTexto] = useState('');
   const [pregunta, setPregunta] = useState('');
 
@@ -21,20 +17,27 @@ const VisualizacionDocumentoPage = () => {
     { remitente: 'ia', texto: 'Hola, ¿qué te gustaría saber sobre este documento?' }
   ]);
 
+  // Estados para control de versiones
+  const [versiones, setVersiones] = useState([]);
+  const [editando, setEditando] = useState(false);
+  const [versionActual, setVersionActual] = useState(null);
+  const [archivoNuevo, setArchivoNuevo] = useState(null);
+  const [subiendoVersion, setSubiendoVersion] = useState(false);
+  const [mostrarVersiones, setMostrarVersiones] = useState(false);
+  const [comentarioVersion, setComentarioVersion] = useState('');
 
   const userInfo = useMemo(() => {
     return JSON.parse(localStorage.getItem('userInfo'));
-  }, []); 
-
+  }, []);
 
   const obtenerDatosDelDocumento = useCallback(async () => {
     if (!userInfo) {
       setError('Debes iniciar sesión');
       setCargando(false);
-      return; 
+      return;
     }
     try {
-      setCargando(true); 
+      setCargando(true);
       const config = {
         headers: { Authorization: `Bearer ${userInfo.token}` },
       };
@@ -42,33 +45,115 @@ const VisualizacionDocumentoPage = () => {
       const { data: docInfo } = await axios.get(`http://localhost:3001/api/documentos/${documentoId}`, config);
       setDocumento(docInfo);
 
-      if (docInfo.tipoArchivo === 'text/plain') {
+      // Obtener historial de versiones
+      const { data: historial } = await axios.get(`http://localhost:3001/api/versiones/history/${documentoId}`, config);
+      setVersiones(historial);
+
+      if (historial.length > 0) {
+        setVersionActual(historial[0]); // La primera es la más reciente
+        if (docInfo.tipoArchivo === 'text/plain') {
+          setContenidoTexto(historial[0].contenido);
+        }
+      } else if (docInfo.tipoArchivo === 'text/plain') {
         const { data: versionInfo } = await axios.get(`http://localhost:3001/api/versiones/latest/${documentoId}`, config);
-        console.log('Última versión cargada:', versionInfo);
         setContenidoTexto(versionInfo.contenido);
       }
-      
+
       setCargando(false);
     } catch (err) {
       console.error(err);
       setError('No se pudo cargar el documento');
       setCargando(false);
     }
-  }, [documentoId, userInfo]); 
+  }, [documentoId, userInfo]);
 
   useEffect(() => {
     obtenerDatosDelDocumento();
-  }, [obtenerDatosDelDocumento]); 
+  }, [obtenerDatosDelDocumento]);
+
+  const guardarNuevaVersionTexto = async () => {
+    if (!comentarioVersion.trim()) {
+      alert('Porfavor ingrese un comentario para guardar la nueva versión.');
+      return;
+    }
+    try {
+      const config = {
+        headers: { Authorization: `Bearer ${userInfo.token}` },
+      };
+      await axios.post('http://localhost:3001/api/versiones', {
+        documentoId,
+        contenido: contenidoTexto,
+        comentario: comentarioVersion
+      }, config);
+
+      setEditando(false);
+      setComentarioVersion('');
+      obtenerDatosDelDocumento(); // Recargar para ver la nueva versión en la lista
+      alert('Versión guardada exitosamente');
+    } catch (error) {
+      console.error(error);
+      alert('Error al guardar la versión');
+    }
+  };
+
+  const subirNuevaVersionArchivo = async (e) => {
+    e.preventDefault();
+    if (!archivoNuevo) return;
+    if (!comentarioVersion.trim()) {
+      alert('Debes ingresar un comentario para subir la nueva versión.');
+      return;
+    }
+
+    setSubiendoVersion(true);
+    const formData = new FormData();
+    formData.append('archivo', archivoNuevo);
+    formData.append('documentoId', documentoId);
+    formData.append('comentario', comentarioVersion);
+
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`,
+          'Content-Type': 'multipart/form-data'
+        },
+      };
+      await axios.post('http://localhost:3001/api/versiones', formData, config);
+
+      setArchivoNuevo(null);
+      setComentarioVersion('');
+      setSubiendoVersion(false);
+      obtenerDatosDelDocumento();
+      alert('Nueva versión del archivo subida exitosamente');
+    } catch (error) {
+      console.error(error);
+      setSubiendoVersion(false);
+      alert('Error al subir la nueva versión');
+    }
+  };
+
+  const cargarVersion = (version) => {
+    setVersionActual(version);
+    if (documento.tipoArchivo === 'text/plain') {
+      setContenidoTexto(version.contenido);
+      setEditando(false);
+    }
+  };
 
   const renderizarVisor = () => {
     if (!documento) return <p>Cargando...</p>;
-    if (documento.rutaArchivo) {
-      const urlArchivo = `http://localhost:3001/${documento.rutaArchivo}`;
+
+    let rutaMostrada = versionActual?.rutaArchivo || documento.rutaArchivo;
+
+    if (rutaMostrada) {
+      let urlArchivo = rutaMostrada;
+      if (!urlArchivo.startsWith('http://') && !urlArchivo.startsWith('https://')) {
+        urlArchivo = `http://localhost:3001/${rutaMostrada}`;
+      }
       if (documento.tipoArchivo === 'application/pdf') {
-        return ( <iframe src={urlArchivo} title={documento.titulo} width="100%" height="100%" style={{ border: 'none' }} /> );
+        return (<iframe src={urlArchivo} title={documento.titulo} width="100%" height="100%" style={{ border: 'none' }} />);
       }
       if (documento.tipoArchivo.startsWith('image/')) {
-        return ( <img src={urlArchivo} alt={documento.titulo} style={{ maxWidth: '100%' }} /> );
+        return (<img src={urlArchivo} alt={documento.titulo} style={{ maxWidth: '100%' }} />);
       }
     }
     if (documento.tipoArchivo === 'text/plain') {
@@ -77,24 +162,26 @@ const VisualizacionDocumentoPage = () => {
           className={estilos.editorTxt}
           value={contenidoTexto}
           onChange={(e) => setContenidoTexto(e.target.value)}
+          readOnly={!editando}
+          style={{ backgroundColor: editando ? '#fff' : '#f0f0f0' }}
         />
       );
     }
     return <p>Tipo de archivo no soportado.</p>;
   };
-  
-const manejarEnvioPregunta = async (e) => {
+
+  const manejarEnvioPregunta = async (e) => {
     e.preventDefault();
-    if (!pregunta.trim() || cargandoIA) return; 
+    if (!pregunta.trim() || cargandoIA) return;
 
     const preguntaUsuario = pregunta;
-    
+
     setHistorialChat(historialPrevio => [
       ...historialPrevio,
       { remitente: 'usuario', texto: preguntaUsuario }
     ]);
-    setPregunta(''); 
-    setCargandoIA(true); 
+    setPregunta('');
+    setCargandoIA(true);
 
     try {
       const config = {
@@ -106,7 +193,7 @@ const manejarEnvioPregunta = async (e) => {
 
       const { data } = await axios.post(
         `http://localhost:3001/api/documentos/${documentoId}/ask`,
-        { pregunta: preguntaUsuario }, // Enviamos la pregunta
+        { pregunta: preguntaUsuario },
         config
       );
 
@@ -114,7 +201,7 @@ const manejarEnvioPregunta = async (e) => {
         ...historialPrevio,
         { remitente: 'ia', texto: data.respuesta }
       ]);
-      
+
     } catch (err) {
       console.error(err);
       setHistorialChat(historialPrevio => [
@@ -122,17 +209,14 @@ const manejarEnvioPregunta = async (e) => {
         { remitente: 'ia', texto: 'Lo siento, ocurrió un error al procesar tu pregunta.' }
       ]);
     } finally {
-      setCargandoIA(false); // Dejamos de cargar
+      setCargandoIA(false);
     }
   };
 
-  // El JSX del return se queda exactamente igual
   return (
     <div className={estilos.contenedorPagina}>
-      
-      {/* --- Columna Izquierda (Menú + Chat) --- */}
       <div className={estilos.columnaIzquierda}>
-        
+
         <nav className={estilos.menuLateral}>
           <div className={estilos.logo}>WikiDocs</div>
           <ul>
@@ -142,33 +226,33 @@ const manejarEnvioPregunta = async (e) => {
           </ul>
         </nav>
 
-<div className={estilos.columnaChat}>
+        <div className={estilos.columnaChat}>
           <div className={estilos.areaChat}>
-            
+
             {historialChat.map((mensaje, index) => (
               <div key={index} className={
-                mensaje.remitente === 'ia' 
-                  ? estilos.mensajeChat 
-                  : estilos.mensajeUsuario 
+                mensaje.remitente === 'ia'
+                  ? estilos.mensajeChat
+                  : estilos.mensajeUsuario
               }>
                 <p><strong>{mensaje.remitente === 'ia' ? 'IA' : 'Tú'}:</strong> {mensaje.texto}</p>
               </div>
             ))}
-            
+
             {cargandoIA && (
               <div className={estilos.mensajeChat}>
                 <p><strong>IA:</strong> Pensando...</p>
               </div>
             )}
           </div>
-          
+
           <form className={estilos.areaInput} onSubmit={manejarEnvioPregunta}>
             <p>Pregunta sobre el documento</p>
-            <textarea 
-              placeholder="Escribe tu pregunta aquí..." 
+            <textarea
+              placeholder="Escribe tu pregunta aquí..."
               value={pregunta}
               onChange={(e) => setPregunta(e.target.value)}
-              disabled={cargandoIA} 
+              disabled={cargandoIA}
             />
             <button type="submit" disabled={cargandoIA}>
               {cargandoIA ? 'Enviando...' : 'Enviar'}
@@ -179,13 +263,103 @@ const manejarEnvioPregunta = async (e) => {
 
       <div className={estilos.columnaVisor}>
         <div className={estilos.headerVisor}>
-          <p><Link to="/modulos">Documentos</Link> / {documento?.titulo}</p>
-          <h2>{documento?.titulo}</h2>
+          <p><Link to={documento?.modulo ? `/modulos/${documento.modulo}` : '/modulos'}>Documentos</Link> / {documento?.titulo}</p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h2>{documento?.titulo}</h2>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <button onClick={() => setMostrarVersiones(true)} style={{ padding: '8px 15px', cursor: 'pointer', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '4px' }}>
+                Historial de versiones
+              </button>
+              {documento?.tipoArchivo === 'text/plain' && (
+                <>
+                  {!editando ? (
+                    <button onClick={() => setEditando(true)} style={{ padding: '8px 15px', cursor: 'pointer', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px' }}>Editar</button>
+                  ) : (
+                    <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+                      <input
+                        type="text"
+                        placeholder="Comentario del cambio..."
+                        value={comentarioVersion}
+                        onChange={(e) => setComentarioVersion(e.target.value)}
+                        style={{ padding: '5px', borderRadius: '4px', border: '1px solid #ccc' }}
+                      />
+                      <button onClick={guardarNuevaVersionTexto} style={{ padding: '8px 15px', cursor: 'pointer', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '4px' }}>Guardar</button>
+                      <button onClick={() => { setEditando(false); setContenidoTexto(versionActual?.contenido || ''); setComentarioVersion(''); }} style={{ padding: '8px 15px', cursor: 'pointer', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px' }}>Cancelar</button>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {documento?.tipoArchivo !== 'text/plain' && (
+                <form onSubmit={subirNuevaVersionArchivo} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <input
+                    type="file"
+                    onChange={(e) => setArchivoNuevo(e.target.files[0])}
+                    style={{ display: 'none' }}
+                    id="file-upload"
+                  />
+                  <label htmlFor="file-upload" style={{ cursor: 'pointer', padding: '8px 15px', border: '1px solid #ccc', borderRadius: '4px', backgroundColor: '#f8f9fa', color: '#333' }}>
+                    {archivoNuevo ? archivoNuevo.name : 'Reemplazar archivo'}
+                  </label>
+                  {archivoNuevo && (
+                    <>
+                      <input
+                        type="text"
+                        placeholder="Comentario..."
+                        value={comentarioVersion}
+                        onChange={(e) => setComentarioVersion(e.target.value)}
+                        style={{ padding: '5px', borderRadius: '4px', border: '1px solid #ccc' }}
+                      />
+                      <button type="submit" disabled={subiendoVersion} style={{ padding: '8px 15px', cursor: 'pointer', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '4px' }}>
+                        {subiendoVersion ? 'Subiendo...' : 'Subir'}
+                      </button>
+                    </>
+                  )}
+                </form>
+              )}
+            </div>
+          </div>
         </div>
         <div className={estilos.areaContenido}>
           {cargando ? <p>Cargando documento...</p> : renderizarVisor()}
         </div>
       </div>
+      {mostrarVersiones && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white', padding: '2rem', borderRadius: '8px', width: '500px', maxHeight: '80vh', overflowY: 'auto',
+            color: 'black'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3>Historial de Versiones</h3>
+              <button onClick={() => setMostrarVersiones(false)} style={{ padding: '5px 10px', cursor: 'pointer' }}>Cerrar</button>
+            </div>
+            <ul style={{ listStyle: 'none', padding: 0 }}>
+              {versiones.map((v) => (
+                <li key={v._id}
+                  style={{
+                    padding: '10px',
+                    cursor: 'pointer',
+                    backgroundColor: versionActual?._id === v._id ? '#e0e0e0' : 'transparent',
+                    borderBottom: '1px solid #eee'
+                  }}
+                  onClick={() => { cargarVersion(v); setMostrarVersiones(false); }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <strong>{new Date(v.createdAt).toLocaleString()}</strong>
+                    <small>{v.user?.nombre || 'Usuario'}</small>
+                  </div>
+                  {v.comentario && <p style={{ margin: '5px 0 0 0', fontStyle: 'italic', color: '#555' }}>"{v.comentario}"</p>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

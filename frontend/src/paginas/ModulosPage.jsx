@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import estilos from './ModulosPage.module.css';
-import Modal from '../componentes/Modal'; 
+import Modal from '../componentes/Modal';
 import MenuOpciones from '../componentes/MenuOpciones';
 
 const ModulosPage = () => {
@@ -18,7 +18,7 @@ const ModulosPage = () => {
   const [errorModal, setErrorModal] = useState('');
 
   const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
-  const [moduloAEditar, setModuloAEditar] = useState(null); 
+  const [moduloAEditar, setModuloAEditar] = useState(null);
   const [nombreEditar, setNombreEditar] = useState('');
   const [descripcionEditar, setDescripcionEditar] = useState('');
   const [errorEditarModal, setErrorEditarModal] = useState('');
@@ -42,18 +42,13 @@ const ModulosPage = () => {
       setError('No se pudieron cargar los módulos');
       setCargando(false);
     }
-   }, [userInfo]);
+  }, [userInfo]);
 
   useEffect(() => {
     if (userInfo) {
       obtenerModulos();
     }
   }, [userInfo, obtenerModulos]);
-
-  const manejarLogout = () => {
-    localStorage.removeItem('userInfo');
-    window.location.href = '/login';
-  };
 
   const manejarCrearModulo = async (e) => {
     e.preventDefault();
@@ -78,7 +73,7 @@ const ModulosPage = () => {
       setNombreModulo('');
       setDescripcionModulo('');
       setErrorModal('');
-      obtenerModulos(); 
+      obtenerModulos();
 
     } catch (err) {
       console.error(err);
@@ -88,15 +83,15 @@ const ModulosPage = () => {
 
 
   const abrirModalEditar = (modulo) => {
-    setModuloAEditar(modulo);     
-    setNombreEditar(modulo.nombre); 
+    setModuloAEditar(modulo);
+    setNombreEditar(modulo.nombre);
     setDescripcionEditar(modulo.descripcion);
-    setModalEditarAbierto(true); 
-    setMenuAbiertoId(null);      
+    setModalEditarAbierto(true);
+    setMenuAbiertoId(null);
   };
 
-  
-const manejarGuardarEdicion = async (e) => {
+
+  const manejarGuardarEdicion = async (e) => {
     e.preventDefault();
     setErrorEditarModal('');
 
@@ -113,9 +108,9 @@ const manejarGuardarEdicion = async (e) => {
         descripcion: descripcionEditar,
       }, config);
 
-      setModalEditarAbierto(false); 
-      obtenerModulos();    
-    
+      setModalEditarAbierto(false);
+      obtenerModulos();
+
     } catch (err) {
       console.error(err);
       setErrorEditarModal('Error al actualizar el módulo');
@@ -123,14 +118,14 @@ const manejarGuardarEdicion = async (e) => {
   };
 
   const manejarEliminar = (modulo) => {
-    setModuloAEliminar(modulo);      
-    setModalEliminarAbierto(true); 
-    setMenuAbiertoId(null);         
-    setErrorEliminar('');           
+    setModuloAEliminar(modulo);
+    setModalEliminarAbierto(true);
+    setMenuAbiertoId(null);
+    setErrorEliminar('');
   };
 
   const confirmarEliminar = async () => {
-    setCargandoEliminar(true); 
+    setCargandoEliminar(true);
     setErrorEliminar('');
 
     try {
@@ -140,11 +135,11 @@ const manejarGuardarEdicion = async (e) => {
 
       await axios.delete(`http://localhost:3001/api/modulos/${moduloAEliminar._id}`, config);
 
-      setModalEliminarAbierto(false); 
+      setModalEliminarAbierto(false);
       setModuloAEliminar(null);
       setCargandoEliminar(false);
-      obtenerModulos();           
-    
+      obtenerModulos();
+
     } catch (err) {
       console.error(err);
 
@@ -170,14 +165,14 @@ const manejarGuardarEdicion = async (e) => {
       <header className={estilos.header}>
         <h1>Módulos de Documentación</h1>
         <div>
-			
+
           <button onClick={() => setModalAbierto(true)} className={estilos.botonCrear}>
             + Añadir Módulo
           </button>
-          <button onClick={manejarLogout} className={estilos.botonLogout}>Cerrar Sesión</button>
+
         </div>
       </header>
-  
+
       <div className={estilos.contenedorBusqueda}>
         <input
           type="text"
@@ -196,18 +191,18 @@ const manejarGuardarEdicion = async (e) => {
         ) : (
           modulosFiltrados.map((modulo) => (
             <div key={modulo._id} className={estilos.tarjetaModuloContenedor}>
-			
+
               <button onClick={() => toggleMenu(modulo._id)} className={estilos.botonMenu}>
                 ⋮
               </button>
-              
+
               {menuAbiertoId === modulo._id && (
-                <MenuOpciones 
+                <MenuOpciones
                   onEditar={() => abrirModalEditar(modulo)}
                   onEliminar={() => manejarEliminar(modulo)}
                 />
               )}
-              
+
               <Link to={`/modulos/${modulo._id}`} className={estilos.enlaceTarjeta}>
                 <h3>{modulo.nombre}</h3>
                 <p>{modulo.descripcion}</p>
@@ -264,26 +259,26 @@ const manejarGuardarEdicion = async (e) => {
           </div>
           <button type="submit" className={estilos.botonGuardar}>Guardar Cambios</button>
         </form>
-      </Modal>  
+      </Modal>
 
       <Modal mostrar={modalEliminarAbierto} onClose={() => setModalEliminarAbierto(false)} titulo="Confirmar Eliminación">
         <div className={estilos.contenedorEliminar}>
           <p>
             ¿Estás seguro de que deseas eliminar el módulo <strong>"{moduloAEliminar?.nombre}"</strong>?
           </p>
-          
+
           {errorEliminar && <p style={{ color: 'red' }}>{errorEliminar}</p>}
 
           <div className={estilos.botonesEliminar}>
-            <button 
-              onClick={() => setModalEliminarAbierto(false)} 
+            <button
+              onClick={() => setModalEliminarAbierto(false)}
               className={estilos.botonCancelar}
               disabled={cargandoEliminar}
             >
               Cancelar
             </button>
-            <button 
-              onClick={confirmarEliminar} 
+            <button
+              onClick={confirmarEliminar}
               className={estilos.botonConfirmarEliminar}
               disabled={cargandoEliminar}
             >

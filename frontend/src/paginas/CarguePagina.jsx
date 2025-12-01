@@ -1,13 +1,12 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import estilos from './CarguePagina.module.css'; // Crearemos este archivo
+import estilos from './CarguePagina.module.css';
 
 const CarguePagina = () => {
   const [modulos, setModulos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
-  
+
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
 
   // lista de módulos  
@@ -53,7 +52,7 @@ const CarguePagina = () => {
     const formData = new FormData();
     formData.append('titulo', titulo);
     formData.append('moduloId', moduloId);
-    formData.append('documento', archivo); 
+    formData.append('documento', archivo);
 
     try {
       const config = {
@@ -65,15 +64,16 @@ const CarguePagina = () => {
 
       //Llamdo al endpoint
       await axios.post('http://localhost:3001/api/documentos/subir', formData, config);
-      
+
       setMensajeExito('¡Archivo subido exitosamente!');
       setTitulo('');
       setModuloId('');
       setArchivo(null);
-    
+
     } catch (err) {
       console.error(err);
-      setErrorCargue('Error al subir el archivo. Intenta de nuevo.');
+      const mensajeError = err.response?.data?.message || err.response?.data?.error || 'Error al subir el archivo. Intenta de nuevo.';
+      setErrorCargue(mensajeError);
     }
   };
 
@@ -83,9 +83,9 @@ const CarguePagina = () => {
   return (
     <div className={estilos.contenedorCargue}>
       <h1>Cargar Documentación</h1>
-      
+
       <form onSubmit={manejarSubida} className={estilos.formulario}>
-        
+
         {mensajeExito && <p className={estilos.mensajeExito}>{mensajeExito}</p>}
         {errorCargue && <p className={estilos.mensajeError}>{errorCargue}</p>}
 
