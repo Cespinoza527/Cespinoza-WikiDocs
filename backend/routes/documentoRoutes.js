@@ -7,6 +7,7 @@ const { proteger } = require('../middleware/authMiddleware.js');
 const Documento = require('../models/Documento.js');
 const Version = require('../models/Version.js');
 const Auditoria = require('../models/Auditoria.js');
+const Modulo = require('../models/Modulo.js');
 const pdfParse = require('pdf-parse');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -58,6 +59,16 @@ router.post('/subir', proteger, subida.single('documento'), async (req, res) => 
 
       fs.unlinkSync(rutaTemporal);
 
+      const modulo = await Modulo.findById(moduloId);
+      const nombreModulo = modulo ? modulo.nombre : 'Desconocido';
+
+      const auditoria = new Auditoria({
+        accion: 'CREACIÓN',
+        usuario: req.user._id,
+        detalles: `Documento creado (Texto): "${documentoGuardado.titulo}" en módulo "${nombreModulo}"`
+      });
+      await auditoria.save();
+
       res.status(201).json(documentoGuardado);
 
     } else {
@@ -81,7 +92,6 @@ router.post('/subir', proteger, subida.single('documento'), async (req, res) => 
 
       const documentoGuardado = await nuevoDocumento.save();
 
-      // Crear versión inicial para archivos no texto
       const nuevaVersion = new Version({
         documento: documentoGuardado._id,
         rutaArchivo: urlPublica,
@@ -97,6 +107,16 @@ router.post('/subir', proteger, subida.single('documento'), async (req, res) => 
       }
 
       res.status(201).json(documentoGuardado);
+
+      const modulo = await Modulo.findById(moduloId);
+      const nombreModulo = modulo ? modulo.nombre : 'Desconocido';
+
+      const auditoria = new Auditoria({
+        accion: 'CREACIÓN',
+        usuario: req.user._id,
+        detalles: `Documento subido (${tipoArchivo}): "${documentoGuardado.titulo}" en módulo "${nombreModulo}"`
+      });
+      await auditoria.save();
     }
 
   } catch (error) {
@@ -127,18 +147,18 @@ router.delete('/:id', proteger, async (req, res) => {
       return res.status(404).json({ message: 'Documento no encontrado' });
     }
 
-    // Eliminar versiones asociadas
     await Version.deleteMany({ documento: documento._id });
 
-    // Crear registro de auditoría
+    const modulo = await Modulo.findById(documento.modulo);
+    const nombreModulo = modulo ? modulo.nombre : 'Desconocido';
+
     const auditoria = new Auditoria({
-      accion: 'ELIMINAR_DOCUMENTO',
+      accion: 'ELIMINACIÓN',
       usuario: req.user._id,
-      detalles: `Documento eliminado: ${documento.titulo} (ID: ${documento._id})`
+      detalles: `Documento eliminado: "${documento.titulo}" del módulo "${nombreModulo}"`
     });
     await auditoria.save();
 
-    // Eliminar el documento
     await Documento.findByIdAndDelete(req.params.id);
 
     res.json({ message: 'Documento eliminado correctamente' });
@@ -207,7 +227,7 @@ router.post('/:id/ask', proteger, async (req, res) => {
       return res.status(400).json({ message: 'No se puede procesar este tipo de archivo con la IA' });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const prompt = `Basándote únicamente en el siguiente texto, responde la pregunta. Si la respuesta no se encuentra en el texto, di "No encontré información sobre eso en el documento", por otra parte si encuentras la información, di en que paginas del documento se encuentra y si es posible el parrafo.
 
     ---

@@ -3,6 +3,8 @@ const router = express.Router();
 const { proteger } = require('../middleware/authMiddleware.js');
 const Version = require('../models/Version.js');
 const Documento = require('../models/Documento.js');
+const Auditoria = require('../models/Auditoria.js');
+const Modulo = require('../models/Modulo.js');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -52,7 +54,6 @@ router.post('/', proteger, subida.single('archivo'), async (req, res) => {
         console.error("No se pudo borrar el archivo temporal:", err);
       }
 
-      // Actualizar el documento principal con la nueva ruta
       await Documento.findByIdAndUpdate(documentoId, { rutaArchivo: rutaArchivo });
     }
 
@@ -73,6 +74,17 @@ router.post('/', proteger, subida.single('archivo'), async (req, res) => {
     });
 
     const versionGuardada = await nuevaVersion.save();
+    const docInfo = await Documento.findById(documentoId).populate('modulo');
+    const nombreModulo = docInfo && docInfo.modulo ? docInfo.modulo.nombre : 'Desconocido';
+    const tituloDoc = docInfo ? docInfo.titulo : 'Desconocido';
+
+    const auditoria = new Auditoria({
+      accion: 'ACTUALIZACIÓN',
+      usuario: req.user._id,
+      detalles: `Nueva versión de: "${tituloDoc}" en módulo "${nombreModulo}". Comentario: "${comentario}"`
+    });
+    await auditoria.save();
+
     res.status(201).json(versionGuardada);
 
   } catch (error) {

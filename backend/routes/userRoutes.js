@@ -1,15 +1,14 @@
-// backend/routes/userRoutes.js
+
 const express = require('express');
 const router = express.Router();
-const User = require('../models/user.js'); 
-const bcrypt = require('bcryptjs'); 
+const User = require('../models/user.js');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 router.post('/register', async (req, res) => {
   try {
     const { nombre, email, password } = req.body;
 
-    // verificacion para saber si el usuario existe
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: 'El usuario ya existe' });
@@ -44,9 +43,9 @@ router.post('/login', async (req, res) => {
     if (user && (await bcrypt.compare(password, user.password))) {
 
       const token = jwt.sign(
-        { id: user._id }, 
+        { id: user._id },
         process.env.JWT_SECRET,
-        { expiresIn: '30d' } 
+        { expiresIn: '30d' }
       );
 
       res.json({

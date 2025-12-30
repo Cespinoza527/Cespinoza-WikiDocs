@@ -1,26 +1,22 @@
 .contenedor {
     max-width: 800px;
     margin: 0 auto;
-}
-
-.contenedor h2 {
-    margin-bottom: 2rem;
-    color: var(--texto-principal);
+    padding: 20px;
 }
 
 .opcion {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem;
     background-color: var(--fondo-tarjeta);
-    border: 1px solid var(--color-borde);
-    border-radius: 12px;
+    padding: 20px;
+    border-radius: 8px;
     box-shadow: var(--sombra);
+    margin-bottom: 20px;
 }
 
 .info h3 {
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 5px 0;
     color: var(--texto-principal);
 }
 
@@ -31,54 +27,94 @@
 
 .toggle {
     width: 60px;
-    height: 32px;
-    background-color: var(--color-borde);
-    border-radius: 16px;
+    height: 30px;
+    background-color: #ccc;
+    border-radius: 15px;
     border: none;
-    position: relative;
     cursor: pointer;
+    position: relative;
     transition: background-color 0.3s;
-    padding: 2px;
 }
 
 .toggle.activo {
-    background-color: var(--color-acento);
+    background-color: #4CAF50;
 }
 
 .circulo {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     background-color: white;
     border-radius: 50%;
     position: absolute;
     top: 2px;
     left: 2px;
     transition: transform 0.3s;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .toggle.activo .circulo {
-    transform: translateX(28px);
+    transform: translateX(30px);
 }
 
 .seccionLogout {
-    margin-top: 2rem;
-    display: flex;
-    justify-content: flex-end;
+    margin-top: 20px;
+    text-align: left;
 }
 
 .botonLogout {
-    background-color: #e63946;
+    background-color: #ff4444;
     color: white;
     border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 16px;
     cursor: pointer;
-    font-size: 1rem;
-    font-weight: bold;
     transition: background-color 0.2s;
 }
 
 .botonLogout:hover {
-    background-color: #d62828;
+    background-color: #cc0000;
+}
+
+/* Estilos para el Historial */
+.seccionHistorial {
+    background-color: var(--fondo-tarjeta);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: var(--sombra);
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+.seccionHistorial h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--texto-principal);
+}
+
+.tablaContenedor {
+    overflow-x: auto;
+}
+
+.tablaHistorial {
+    width: 100%;
+    border-collapse: collapse;
+    color: var(--texto-principal);
+}
+
+.tablaHistorial th,
+.tablaHistorial td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-borde);
+    color: var(--texto-principal);
+}
+
+.tablaHistorial th {
+    background-color: var(--fondo-hover);
+    color: var(--texto-principal);
+    font-weight: bold;
+}
+
+.tablaHistorial tr:hover {
+    background-color: var(--fondo-hover);
 }

@@ -1,4 +1,4 @@
-.modalOverlay {
+.overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -11,43 +11,85 @@
   z-index: 1000;
 }
 
-.modalContenido {
+.modal {
   background-color: var(--fondo-tarjeta);
+  padding: 20px;
   border-radius: 8px;
-  width: 500px;
+  width: 400px;
   max-width: 90%;
   box-shadow: var(--sombra);
-  border: 1px solid var(--color-borde);
-  color: var(--texto-principal);
+  animation: fadeIn 0.2s ease-out;
 }
 
-.modalHeader {
+.header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.5rem;
+  margin-bottom: 15px;
   border-bottom: 1px solid var(--color-borde);
+  padding-bottom: 10px;
 }
 
-.modalTitulo {
+.header h3 {
   margin: 0;
-  font-size: 1.25rem;
   color: var(--texto-principal);
 }
 
-.botonCerrar {
+.closeButton {
   background: none;
   border: none;
-  font-size: 2rem;
-  font-weight: bold;
-  color: var(--texto-secundario);
+  font-size: 1.5rem;
   cursor: pointer;
+  color: var(--texto-secundario);
 }
 
-.botonCerrar:hover {
+.content {
+  margin-bottom: 20px;
   color: var(--texto-principal);
 }
 
-.modalBody {
-  padding: 1.5rem;
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancelButton {
+  padding: 8px 16px;
+  border: 1px solid var(--input-borde);
+  background-color: var(--fondo-tarjeta);
+  color: var(--texto-principal);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancelButton:hover {
+  background-color: var(--fondo-hover);
+}
+
+.confirmButton {
+  padding: 8px 16px;
+  border: none;
+  background-color: #dc3545;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.confirmButton:hover {
+  background-color: #c82333;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

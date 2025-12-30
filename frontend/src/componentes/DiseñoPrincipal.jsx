@@ -17,13 +17,13 @@ const DiseñoPrincipal = () => {
             <Link to="/cargue">Cargue de Documentación</Link>
           </li>
           <li>
-            <Link to="/configuracion">Configuración</Link>
+            <Link to="/configuracion">Configuración/Historial</Link>
           </li>
         </ul>
       </nav>
 
       <main className={estilos.contenidoPrincipal}>
-        <Outlet /> {}
+        <Outlet /> { }
       </main>
     </div>
   );

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import estilos from './VisualizacionDocumentoPage.module.css';
+import Modal from '../componentes/Modal';
 
 const VisualizacionDocumentoPage = () => {
   const { documentoId } = useParams();
@@ -17,7 +18,6 @@ const VisualizacionDocumentoPage = () => {
     { remitente: 'ia', texto: 'Hola, ¿qué te gustaría saber sobre este documento?' }
   ]);
 
-  // Estados para control de versiones
   const [versiones, setVersiones] = useState([]);
   const [editando, setEditando] = useState(false);
   const [versionActual, setVersionActual] = useState(null);
@@ -26,9 +26,29 @@ const VisualizacionDocumentoPage = () => {
   const [mostrarVersiones, setMostrarVersiones] = useState(false);
   const [comentarioVersion, setComentarioVersion] = useState('');
 
+  const [modalConfig, setModalConfig] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    confirmText: 'Aceptar',
+    showCancel: false,
+    onConfirm: () => { }
+  });
+
   const userInfo = useMemo(() => {
     return JSON.parse(localStorage.getItem('userInfo'));
   }, []);
+
+  const mostrarAlerta = (titulo, mensaje) => {
+    setModalConfig({
+      isOpen: true,
+      title: titulo,
+      message: mensaje,
+      confirmText: 'Aceptar',
+      showCancel: false,
+      onConfirm: () => setModalConfig(prev => ({ ...prev, isOpen: false }))
+    });
+  };
 
   const obtenerDatosDelDocumento = useCallback(async () => {
     if (!userInfo) {
@@ -45,7 +65,6 @@ const VisualizacionDocumentoPage = () => {
       const { data: docInfo } = await axios.get(`http://localhost:3001/api/documentos/${documentoId}`, config);
       setDocumento(docInfo);
 
-      // Obtener historial de versiones
       const { data: historial } = await axios.get(`http://localhost:3001/api/versiones/history/${documentoId}`, config);
       setVersiones(historial);
 
@@ -73,7 +92,7 @@ const VisualizacionDocumentoPage = () => {
 
   const guardarNuevaVersionTexto = async () => {
     if (!comentarioVersion.trim()) {
-      alert('Porfavor ingrese un comentario para guardar la nueva versión.');
+      mostrarAlerta('Atención', 'Por favor ingrese un comentario para guardar la nueva versión.');
       return;
     }
     try {
@@ -88,11 +107,11 @@ const VisualizacionDocumentoPage = () => {
 
       setEditando(false);
       setComentarioVersion('');
-      obtenerDatosDelDocumento(); // Recargar para ver la nueva versión en la lista
-      alert('Versión guardada exitosamente');
+      obtenerDatosDelDocumento();
+      mostrarAlerta('Éxito', 'Versión guardada exitosamente');
     } catch (error) {
       console.error(error);
-      alert('Error al guardar la versión');
+      mostrarAlerta('Error', 'Error al guardar la versión');
     }
   };
 
@@ -100,7 +119,7 @@ const VisualizacionDocumentoPage = () => {
     e.preventDefault();
     if (!archivoNuevo) return;
     if (!comentarioVersion.trim()) {
-      alert('Debes ingresar un comentario para subir la nueva versión.');
+      mostrarAlerta('Atención', 'Debes ingresar un comentario para subir la nueva versión.');
       return;
     }
 
@@ -123,11 +142,11 @@ const VisualizacionDocumentoPage = () => {
       setComentarioVersion('');
       setSubiendoVersion(false);
       obtenerDatosDelDocumento();
-      alert('Nueva versión del archivo subida exitosamente');
+      mostrarAlerta('Éxito', 'Nueva versión del archivo subida exitosamente');
     } catch (error) {
       console.error(error);
       setSubiendoVersion(false);
-      alert('Error al subir la nueva versión');
+      mostrarAlerta('Error', 'Error al subir la nueva versión');
     }
   };
 
@@ -163,7 +182,7 @@ const VisualizacionDocumentoPage = () => {
           value={contenidoTexto}
           onChange={(e) => setContenidoTexto(e.target.value)}
           readOnly={!editando}
-          style={{ backgroundColor: editando ? '#fff' : '#f0f0f0' }}
+          style={{ backgroundColor: editando ? '#fff' : '#f0f0f0', color: '#000' }}
         />
       );
     }
@@ -204,9 +223,15 @@ const VisualizacionDocumentoPage = () => {
 
     } catch (err) {
       console.error(err);
+      let mensajeError = 'No fue posible procesar la pregunta.';
+
+      if (err.response && err.response.data && err.response.data.message) {
+        mensajeError = err.response.data.message;
+      }
+
       setHistorialChat(historialPrevio => [
         ...historialPrevio,
-        { remitente: 'ia', texto: 'Lo siento, ocurrió un error al procesar tu pregunta.' }
+        { remitente: 'ia', texto: mensajeError }
       ]);
     } finally {
       setCargandoIA(false);
@@ -222,7 +247,7 @@ const VisualizacionDocumentoPage = () => {
           <ul>
             <li><Link to="/modulos">Módulos</Link></li>
             <li><Link to="/cargue">Cargue de Documentación</Link></li>
-            <li><Link to="/configuracion">Configuración</Link></li>
+            <li><Link to="/configuracion">Configuración/Historial</Link></li>
           </ul>
         </nav>
 
@@ -360,6 +385,16 @@ const VisualizacionDocumentoPage = () => {
           </div>
         </div>
       )}
+
+      <Modal
+        isOpen={modalConfig.isOpen}
+        onClose={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={modalConfig.onConfirm}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        confirmText={modalConfig.confirmText}
+        showCancel={modalConfig.showCancel}
+      />
     </div>
   );
 };

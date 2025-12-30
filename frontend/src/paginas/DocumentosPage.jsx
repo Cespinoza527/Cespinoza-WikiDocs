@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
 import estilos from './DocumentosPage.module.css';
+import Modal from '../componentes/Modal';
 
 const DocumentosPage = () => {
   const { moduloId } = useParams();
@@ -10,6 +11,10 @@ const DocumentosPage = () => {
   const [moduloInfo, setModuloInfo] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
+
+  // Estado para el modal de eliminación
+  const [mostrarModal, setMostrarModal] = useState(false);
+  const [documentoAEliminar, setDocumentoAEliminar] = useState(null);
 
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
 
@@ -40,22 +45,44 @@ const DocumentosPage = () => {
     obtenerDatos();
   }, [obtenerDatos]);
 
-  const handleEliminar = async (e, id) => {
-    e.preventDefault(); // Evitar navegación del Link
-    if (window.confirm('¿Estás seguro de que quieres eliminar este documento? Esta acción no se puede deshacer.')) {
-      try {
-        const config = {
-          headers: { Authorization: `Bearer ${userInfo.token}` },
-        };
-        await axios.delete(`http://localhost:3001/api/documentos/${id}`, config);
-        // Actualizar la lista
-        setDocumentos(documentos.filter(doc => doc._id !== id));
-        alert('Documento eliminado correctamente');
-      } catch (error) {
-        console.error(error);
-        alert('Error al eliminar el documento');
-      }
+  const handleEliminar = (e, id) => {
+    e.preventDefault();
+    setDocumentoAEliminar(id);
+    setMostrarModal(true);
+  };
+
+  const confirmarEliminacion = async () => {
+    if (!documentoAEliminar) return;
+
+    try {
+      const config = {
+        headers: { Authorization: `Bearer ${userInfo.token}` },
+      };
+      await axios.delete(`http://localhost:3001/api/documentos/${documentoAEliminar}`, config);
+
+      // Actualizar la lista
+      setDocumentos(documentos.filter(doc => doc._id !== documentoAEliminar));
+
+      setMostrarModal(false);
+      setDocumentoAEliminar(null);
+      // Opcional: Mostrar un toast o notificación de éxito menos intrusiva
+    } catch (error) {
+      console.error(error);
+      alert('Error al eliminar el documento');
+      setMostrarModal(false);
     }
+  };
+
+  const cancelarEliminacion = () => {
+    setMostrarModal(false);
+    setDocumentoAEliminar(null);
+  };
+
+  const formatearTipoArchivo = (tipo) => {
+    if (tipo === 'application/pdf') return 'PDF';
+    if (tipo === 'text/plain') return 'TXT';
+    if (tipo.startsWith('image/')) return 'Imagen';
+    return 'Archivo';
   };
 
   if (cargando) return <p>Cargando documentos...</p>;
@@ -82,7 +109,7 @@ const DocumentosPage = () => {
               </div>
               <div className={estilos.infoDocumento}>
                 <h4>{doc.titulo}</h4>
-                <p>Tipo: {doc.tipoArchivo}</p>
+                <p>Tipo: {formatearTipoArchivo(doc.tipoArchivo)}</p>
               </div>
               <button
                 onClick={(e) => handleEliminar(e, doc._id)}
@@ -101,6 +128,15 @@ const DocumentosPage = () => {
           ))
         )}
       </div>
+
+      <Modal
+        isOpen={mostrarModal}
+        onClose={cancelarEliminacion}
+        onConfirm={confirmarEliminacion}
+        title="Eliminar Documento"
+        message="¿Estás seguro de que quieres eliminar este documento? Esta acción no se puede deshacer."
+        confirmText="Eliminar"
+      />
     </div>
   );
 };

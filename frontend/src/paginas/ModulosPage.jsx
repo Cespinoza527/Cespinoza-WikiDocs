@@ -215,7 +215,7 @@ const ModulosPage = () => {
 
 
 
-      <Modal mostrar={modalAbierto} onClose={() => setModalAbierto(false)} titulo="Crear Nuevo Módulo">
+      <Modal isOpen={modalAbierto} onClose={() => setModalAbierto(false)} title="Crear Nuevo Módulo">
         <form onSubmit={manejarCrearModulo}>
           {errorModal && <p style={{ color: 'red' }}>{errorModal}</p>}
           <div className={estilos.formGroup}>
@@ -238,7 +238,7 @@ const ModulosPage = () => {
         </form>
       </Modal>
 
-      <Modal mostrar={modalEditarAbierto} onClose={() => setModalEditarAbierto(false)} titulo="Editar Módulo">
+      <Modal isOpen={modalEditarAbierto} onClose={() => setModalEditarAbierto(false)} title="Editar Módulo">
         <form onSubmit={manejarGuardarEdicion}>
           {errorEditarModal && <p style={{ color: 'red' }}>{errorEditarModal}</p>}
           <div className={estilos.formGroup}>
@@ -261,7 +261,7 @@ const ModulosPage = () => {
         </form>
       </Modal>
 
-      <Modal mostrar={modalEliminarAbierto} onClose={() => setModalEliminarAbierto(false)} titulo="Confirmar Eliminación">
+      <Modal isOpen={modalEliminarAbierto} onClose={() => setModalEliminarAbierto(false)} title="Confirmar Eliminación">
         <div className={estilos.contenedorEliminar}>
           <p>
             ¿Estás seguro de que deseas eliminar el módulo <strong>"{moduloAEliminar?.nombre}"</strong>?

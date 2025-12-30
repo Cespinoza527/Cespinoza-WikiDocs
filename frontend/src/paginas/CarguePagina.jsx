@@ -9,7 +9,6 @@ const CarguePagina = () => {
 
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
 
-  // lista de módulos  
   const obtenerModulos = useCallback(async () => {
     try {
       const config = {
@@ -31,7 +30,6 @@ const CarguePagina = () => {
     }
   }, [userInfo, obtenerModulos]);
 
-  // Estados para el formulario
   const [titulo, setTitulo] = useState('');
   const [moduloId, setModuloId] = useState('');
   const [archivo, setArchivo] = useState(null);
@@ -48,7 +46,6 @@ const CarguePagina = () => {
       return;
     }
 
-    // FormData para enviar archivos
     const formData = new FormData();
     formData.append('titulo', titulo);
     formData.append('moduloId', moduloId);
@@ -62,7 +59,6 @@ const CarguePagina = () => {
         },
       };
 
-      //Llamdo al endpoint
       await axios.post('http://localhost:3001/api/documentos/subir', formData, config);
 
       setMensajeExito('¡Archivo subido exitosamente!');
