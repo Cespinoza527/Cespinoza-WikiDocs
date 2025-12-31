@@ -42,6 +42,11 @@
   border-color: var(--color-acento);
 }
 
+.formGroup select option {
+  background-color: var(--fondo-tarjeta);
+  color: var(--texto-principal);
+}
+
 .botonCargar {
   background-color: var(--color-acento);
   color: white;

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import Modal from '../componentes/Modal';
 import styles from './RegisterPage.module.css';
 
 const RegisterPage = () => {
@@ -11,11 +12,12 @@ const RegisterPage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const manejarSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     if (password !== confirmPassword) {
       setError('Las contraseñas no coinciden');
       return;
@@ -33,14 +35,19 @@ const RegisterPage = () => {
         email,
         password,
       });
-      
+
       localStorage.setItem('userInfo', JSON.stringify(data));
-      navigate('/login');
+      setShowSuccessModal(true);
     } catch (err) {
       setError(err?.response?.data?.message || 'Error al registrarse');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCloseModal = () => {
+    setShowSuccessModal(false);
+    navigate('/login');
   };
 
   return (
@@ -112,7 +119,17 @@ const RegisterPage = () => {
           </Link>
         </p>
       </div>
-    </div>
+
+      <Modal
+        isOpen={showSuccessModal}
+        onClose={handleCloseModal}
+        onConfirm={handleCloseModal}
+        title="Registro Exitoso"
+        message="El usuario se ha registrado correctamente."
+        confirmText="Aceptar"
+        showCancel={false}
+      />
+    </div >
   );
 };
 
