@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import estilos from './ModulosPage.module.css';
 import Modal from '../componentes/Modal';
 import MenuOpciones from '../componentes/MenuOpciones';
+import API_URL from '../api/config';
 
 const ModulosPage = () => {
   const [modulos, setModulos] = useState([]);
@@ -34,7 +35,7 @@ const ModulosPage = () => {
       const config = {
         headers: { Authorization: `Bearer ${userInfo.token}` },
       };
-      const { data } = await axios.get('http://localhost:3001/api/modulos', config);
+      const { data } = await axios.get(`${API_URL}/api/modulos`, config);
       setModulos(data);
       setCargando(false);
     } catch (err) {
@@ -64,7 +65,7 @@ const ModulosPage = () => {
           Authorization: `Bearer ${userInfo.token}`,
         },
       };
-      await axios.post('http://localhost:3001/api/modulos', {
+      await axios.post(`${API_URL}/api/modulos`, {
         nombre: nombreModulo,
         descripcion: descripcionModulo,
       }, config);
@@ -103,7 +104,7 @@ const ModulosPage = () => {
         },
       };
 
-      await axios.put(`http://localhost:3001/api/modulos/${moduloAEditar._id}`, {
+      await axios.put(`${API_URL}/api/modulos/${moduloAEditar._id}`, {
         nombre: nombreEditar,
         descripcion: descripcionEditar,
       }, config);
@@ -133,7 +134,7 @@ const ModulosPage = () => {
         headers: { Authorization: `Bearer ${userInfo.token}` },
       };
 
-      await axios.delete(`http://localhost:3001/api/modulos/${moduloAEliminar._id}`, config);
+      await axios.delete(`${API_URL}/api/modulos/${moduloAEliminar._id}`, config);
 
       setModalEliminarAbierto(false);
       setModuloAEliminar(null);

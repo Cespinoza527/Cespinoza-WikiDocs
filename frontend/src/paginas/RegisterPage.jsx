@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import Modal from '../componentes/Modal';
 import styles from './RegisterPage.module.css';
+import API_URL from '../api/config';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ const RegisterPage = () => {
 
     setLoading(true);
     try {
-      const { data } = await axios.post('http://localhost:3001/api/users/register', {
+      const { data } = await axios.post(`${API_URL}/api/users/register`, {
         nombre,
         email,
         password,

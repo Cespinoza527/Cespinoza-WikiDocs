@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { usarTema } from '../context/ContextoTema';
 import estilos from './ConfiguracionPage.module.css';
+import API_URL from '../api/config';
 
 const ConfiguracionPage = () => {
     const { modoOscuro, alternarTema } = usarTema();
@@ -15,7 +16,7 @@ const ConfiguracionPage = () => {
                 const config = {
                     headers: { Authorization: `Bearer ${userInfo.token}` },
                 };
-                const { data } = await axios.get('http://localhost:3001/api/auditoria', config);
+                const { data } = await axios.get(`${API_URL}/api/auditoria`, config);
                 setHistorial(data);
                 setCargando(false);
             } catch (error) {

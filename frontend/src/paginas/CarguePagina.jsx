@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import estilos from './CarguePagina.module.css';
+import API_URL from '../api/config';
 
 const CarguePagina = () => {
   const [modulos, setModulos] = useState([]);
@@ -14,7 +15,7 @@ const CarguePagina = () => {
       const config = {
         headers: { Authorization: `Bearer ${userInfo.token}` },
       };
-      const { data } = await axios.get('http://localhost:3001/api/modulos', config);
+      const { data } = await axios.get(`${API_URL}/api/modulos`, config);
       setModulos(data);
       setCargando(false);
     } catch (err) {
@@ -59,7 +60,7 @@ const CarguePagina = () => {
         },
       };
 
-      await axios.post('http://localhost:3001/api/documentos/subir', formData, config);
+      await axios.post(`${API_URL}/api/documentos/subir`, formData, config);
 
       setMensajeExito('¡Archivo subido exitosamente!');
       setTitulo('');

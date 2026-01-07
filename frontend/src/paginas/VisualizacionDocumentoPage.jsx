@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import estilos from './VisualizacionDocumentoPage.module.css';
 import Modal from '../componentes/Modal';
+import API_URL from '../api/config';
 
 const VisualizacionDocumentoPage = () => {
   const { documentoId } = useParams();
@@ -62,10 +63,10 @@ const VisualizacionDocumentoPage = () => {
         headers: { Authorization: `Bearer ${userInfo.token}` },
       };
 
-      const { data: docInfo } = await axios.get(`http://localhost:3001/api/documentos/${documentoId}`, config);
+      const { data: docInfo } = await axios.get(`${API_URL}/api/documentos/${documentoId}`, config);
       setDocumento(docInfo);
 
-      const { data: historial } = await axios.get(`http://localhost:3001/api/versiones/history/${documentoId}`, config);
+      const { data: historial } = await axios.get(`${API_URL}/api/versiones/history/${documentoId}`, config);
       setVersiones(historial);
 
       if (historial.length > 0) {
@@ -74,7 +75,7 @@ const VisualizacionDocumentoPage = () => {
           setContenidoTexto(historial[0].contenido);
         }
       } else if (docInfo.tipoArchivo === 'text/plain') {
-        const { data: versionInfo } = await axios.get(`http://localhost:3001/api/versiones/latest/${documentoId}`, config);
+        const { data: versionInfo } = await axios.get(`${API_URL}/api/versiones/latest/${documentoId}`, config);
         setContenidoTexto(versionInfo.contenido);
       }
 
@@ -99,7 +100,7 @@ const VisualizacionDocumentoPage = () => {
       const config = {
         headers: { Authorization: `Bearer ${userInfo.token}` },
       };
-      await axios.post('http://localhost:3001/api/versiones', {
+      await axios.post(`${API_URL}/api/versiones`, {
         documentoId,
         contenido: contenidoTexto,
         comentario: comentarioVersion
@@ -136,7 +137,7 @@ const VisualizacionDocumentoPage = () => {
           'Content-Type': 'multipart/form-data'
         },
       };
-      await axios.post('http://localhost:3001/api/versiones', formData, config);
+      await axios.post(`${API_URL}/api/versiones`, formData, config);
 
       setArchivoNuevo(null);
       setComentarioVersion('');
@@ -166,7 +167,7 @@ const VisualizacionDocumentoPage = () => {
     if (rutaMostrada) {
       let urlArchivo = rutaMostrada;
       if (!urlArchivo.startsWith('http://') && !urlArchivo.startsWith('https://')) {
-        urlArchivo = `http://localhost:3001/${rutaMostrada}`;
+        urlArchivo = `${API_URL}/${rutaMostrada}`;
       }
       if (documento.tipoArchivo === 'application/pdf') {
         return (<iframe src={urlArchivo} title={documento.titulo} width="100%" height="100%" style={{ border: 'none' }} />);
@@ -211,7 +212,7 @@ const VisualizacionDocumentoPage = () => {
       };
 
       const { data } = await axios.post(
-        `http://localhost:3001/api/documentos/${documentoId}/ask`,
+        `${API_URL}/api/documentos/${documentoId}/ask`,
         { pregunta: preguntaUsuario },
         config
       );

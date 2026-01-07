@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
 import estilos from './DocumentosPage.module.css';
 import Modal from '../componentes/Modal';
+import API_URL from '../api/config';
 
 const DocumentosPage = () => {
   const { moduloId } = useParams();
@@ -29,7 +30,7 @@ const DocumentosPage = () => {
       const config = {
         headers: { Authorization: `Bearer ${userInfo.token}` },
       };
-      const { data: dataDocs } = await axios.get(`http://localhost:3001/api/documentos/por-modulo/${moduloId}`, config);
+      const { data: dataDocs } = await axios.get(`${API_URL}/api/documentos/por-modulo/${moduloId}`, config);
       setDocumentos(dataDocs);
       setModuloInfo({ nombre: 'Módulo de Manuales', descripcion: 'Módulo de información de manuales.' });
       setCargando(false);
@@ -58,7 +59,7 @@ const DocumentosPage = () => {
       const config = {
         headers: { Authorization: `Bearer ${userInfo.token}` },
       };
-      await axios.delete(`http://localhost:3001/api/documentos/${documentoAEliminar}`, config);
+      await axios.delete(`${API_URL}/api/documentos/${documentoAEliminar}`, config);
 
       // Actualizar la lista
       setDocumentos(documentos.filter(doc => doc._id !== documentoAEliminar));

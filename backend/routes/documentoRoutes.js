@@ -189,14 +189,11 @@ router.post('/:id/ask', proteger, async (req, res) => {
     if (!pregunta) {
       return res.status(400).json({ message: 'No se proporcionó ninguna pregunta' });
     }
-
     const documento = await Documento.findById(req.params.id);
     if (!documento) {
       return res.status(404).json({ message: 'Documento no encontrado' });
     }
-
     let contenidoTexto = '';
-
     if (documento.tipoArchivo === 'application/pdf') {
       if (documento.rutaArchivo.startsWith('http')) {
         const respuestaS3 = await fetch(documento.rutaArchivo);
@@ -204,7 +201,6 @@ router.post('/:id/ask', proteger, async (req, res) => {
         const buffer = Buffer.from(arrayBuffer);
         const data = await pdfParse(buffer);
         contenidoTexto = data.text;
-
       } else {
         const rutaCompleta = path.join(__dirname, '..', documento.rutaArchivo);
         const dataBuffer = fs.readFileSync(rutaCompleta);
@@ -222,11 +218,9 @@ router.post('/:id/ask', proteger, async (req, res) => {
         return res.status(404).json({ message: 'No se encontró contenido para este documento' });
       }
       contenidoTexto = ultimaVersion.contenido;
-
     } else {
       return res.status(400).json({ message: 'No se puede procesar este tipo de archivo con la IA' });
     }
-
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const prompt = `Basándote únicamente en el siguiente texto, responde la pregunta. Si la respuesta no se encuentra en el texto, di "No encontré información sobre eso en el documento", por otra parte si encuentras la información, di en que paginas del documento se encuentra y si es posible el parrafo.
 
@@ -238,13 +232,10 @@ router.post('/:id/ask', proteger, async (req, res) => {
     PREGUNTA:
     ${pregunta}
     `;
-
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const respuestaIA = response.text();
-
     res.json({ respuesta: respuestaIA });
-
   } catch (error) {
     console.error('Error al procesar la pregunta de IA:', error);
     res.status(500).json({ message: 'Error en el servidor de IA' });

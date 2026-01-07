@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --ignore archivos/ server.js"
+    "start": "node server.js",
+    "dev": "nodemon --ignore archivos/ server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "keywords": [],
   "author": "",
