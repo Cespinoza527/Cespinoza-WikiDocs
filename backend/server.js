@@ -2,7 +2,16 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const mongoose = require('mongoose');
+
+const fs = require('fs');
 require('dotenv').config();
+
+const uploadDir = path.join(__dirname, 'archivos');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+  console.log('Carpeta "archivos" creada exitosamente');
+}
+
 
 const app = express();
 const PORT = process.env.PORT || 3001;

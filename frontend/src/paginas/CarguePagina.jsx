@@ -71,6 +71,11 @@ const CarguePagina = () => {
       console.error(err);
       const mensajeError = err.response?.data?.message || err.response?.data?.error || 'Error al subir el archivo. Intenta de nuevo.';
       setErrorCargue(mensajeError);
+
+      if (err.response && err.response.data) {
+        console.error("Detalles del error del servidor:", err.response.data);
+      }
+
     }
   };
 

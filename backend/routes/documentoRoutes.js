@@ -121,7 +121,17 @@ router.post('/subir', proteger, subida.single('documento'), async (req, res) => 
 
   } catch (error) {
     console.error('ERROR DETALLADO AL SUBIR:', error);
-    res.status(400).json({ message: 'Error al subir el documento', error: error.message });
+
+    if (req.file && req.file.path) {
+      try {
+        if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+      } catch (unlinkError) {
+        console.error('Error al borrar archivo temporal tras fallo:', unlinkError);
+      }
+    }
+
+    const mensajeError = error.message || 'Error desconocido al subir el documento';
+    res.status(500).json({ message: 'Error al subir el documento', error: mensajeError });
   }
 });
 
